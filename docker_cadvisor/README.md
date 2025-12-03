@@ -88,4 +88,5 @@ up{job="cadvisor"}
 Expected output:
 
 ![Docker Query](images/docker_up_query.png)
+
 ![cAdvisor Query](images/cadvisor_up_query.png)

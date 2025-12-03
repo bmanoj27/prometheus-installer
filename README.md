@@ -20,6 +20,7 @@ Open in browser, change IP with your local IP.
 http://192.168.18.61:9090
 ```
 ![UI](images/prometheus_ui.png)
+
 ![Targets](images/prometheus_ui_targets.png)
 ---
 
