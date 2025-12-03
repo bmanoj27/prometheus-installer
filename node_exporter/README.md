@@ -12,37 +12,41 @@ chmod +x install_nodeexporter.sh
 ---
 
 **Basic Authentication** and **TLS encryption** for `node_exporter`, and how to configure Prometheus to scrape it securely.
-
----
+This document assumes that both Prometheus and Node Exporter are installed in the same machine.
 
 # 🧩 A. Enable Basic Authentication for Node Exporter
 
 ### Step 1: Generate a bcrypt password hash
 
-**Ubuntu/Debian:**
+Ubuntu/Debian:
 ```bash
 apt install apache2-utils
 ```
-**RHEL/CentOS:**
+RHEL/CentOS:
 ```bash
 yum install httpd-tools
 ```
 
-Generate a bcrypt hash:
+**Generate a bcrypt hash:**
 ```bash
 htpasswd -nBC 12 ""
 ```
 
 Example output:
 ```
-$2y$12$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+:$2y$12$CkzU6D3in/gdH7OHQS.79.lQ0.WTxHNrEZmc5Kw36xzxDC4o/Lkqe
 ```
 
 ### Step 2: Update `/etc/node_exporter/config.yml`
 
+```bash
+vi /etc/node_exporter/config.yml
+```
+Add the following section
+
 ```yaml
 basic_auth_users:
-  prometheus: "$2y$12$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  prometheus: "$2y$12$CkzU6D3in/gdH7OHQS.79.lQ0.WTxHNrEZmc5Kw36xzxDC4o/Lkqe"
   # user2: "$2y$12$hashhere"
 ```
 
@@ -53,23 +57,23 @@ systemctl restart node_exporter
 ```
 
 ---
-
-
----
-
 # 🧩 B. Update Prometheus to Use Basic Authentication
 
-Add this to `prometheus.yml`:
+Add this to `/etc/prometheus/prometheus.yml`:
+```bash
+vi /etc/prometheus/prometheus.yml
+```
 
 ```yaml
 - job_name: "node_exporter"
-  basic_auth:
-    username: "prometheus"
-    password: "P@ssw0rd"
   static_configs:
     - targets: ["localhost:9100"]
       labels:
         app: "node_scrape"
+#Add this
+  basic_auth:
+    username: "prometheus"
+    password: "P@ssw0rd"
 ```
 
 Restart Prometheus 
@@ -82,6 +86,10 @@ systemctl restart prometheus
 # 🔐 C. Enable TLS for Node Exporter
 
 ### Step 1: Generate TLS certificate
+
+```bash
+cd /etc/node_exporter
+```
 
 ```bash
 openssl req \
@@ -100,7 +108,13 @@ chmod 600 node_exporter.key
 
 ### Step 2: Update `/etc/node_exporter/config.yml`
 
+```bash
+vi /etc/node_exporter/config.yml
+
 ```yaml
+basic_auth_users:
+  prometheus: "$2y$12$CkzU6D3in/gdH7OHQS.79.lQ0.WTxHNrEZmc5Kw36xzxDC4o/Lkqe"
+#Add this
 tls_server_config:
   cert_file: /etc/node_exporter/node_exporter.crt
   key_file: /etc/node_exporter/node_exporter.key
@@ -127,18 +141,23 @@ Update Prometheus job:
 
 ```yaml
 - job_name: "node_exporter"
+  static_configs:
+    - targets: ["localhost:9100"]
+  basic_auth:
+    username: "prometheus"
+    password: "P@ssw0rd"
+#Add this
   scheme: "https"
   tls_config:
     ca_file: /etc/prometheus/node_exporter.crt
     insecure_skip_verify: true
-  basic_auth:
-    username: "prometheus"
-    password: "P@ssw0rd"
-  static_configs:
-    - targets: ["localhost:9100"]
 ```
 
 Restart Prometheus.
+
+```bash
+systemctl restart prometheus
+```
 
 ---
 
