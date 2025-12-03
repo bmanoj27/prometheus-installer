@@ -18,5 +18,5 @@ Further customization can be done like installing grafana, node_exporter, implem
 ## Contents
 
 - [node_exporter](node_exporter/README.md)
-- [docker_cadvisor](docker_cadvisor/README.d)
+- [docker_cadvisor](docker_cadvisor/README.md)
 - [grafana](grafana/README.md)

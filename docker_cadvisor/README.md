@@ -87,5 +87,5 @@ up{job="cadvisor"}
 ```
 Expected output:
 
-{instance="localhost:9323", job="docker"} = 1
-{instance="localhost:8080", job="cadvisor"} = 1
+![Docker Query](images/docker_up_query.png)
+![cAdvisor Query](images/cadvisor_up_query.png)
