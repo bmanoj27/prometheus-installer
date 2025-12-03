@@ -10,7 +10,12 @@ URL=$(curl -s https://api.github.com/repos/prometheus/prometheus/releases/latest
 
 echo "Latest Prometheus URL: $URL"
 
-wget -q https://github.com/prometheus/prometheus/releases/download/v3.8.0/prometheus-3.8.0.linux-amd64.tar.gz
+wget -q $URL
+
+if [[ $? != 0 ]] || [ -z "$URL" ]; then
+    echo "Failed to fetch the latest Prometheus release URL. Falling back to version 3.8.0."
+    wget -q https://github.com/prometheus/prometheus/releases/download/v3.8.0/prometheus-3.8.0.linux-amd64.tar.gz
+fi
 
 tar -xzf prometheus-*.linux-amd64.tar.gz
 cd prometheus-*linux-amd64/
