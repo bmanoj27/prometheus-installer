@@ -13,6 +13,14 @@ chmod +x install_prometheus.sh
 This will install and configure prometheus on your machine with default values.
 Further customization can be done like installing grafana, node_exporter, implementing basic auth can be found in designated directories.
 
+# 2. Access Prometheus UI
+
+Open in browser, change IP with your local IP.
+```bash
+http://192.168.18.61:9090
+```
+![UI](images/prometheus_ui.png)
+![Targets](images/prometheus_ui_targets.png)
 ---
 
 ## Contents

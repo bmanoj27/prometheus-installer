@@ -4,7 +4,7 @@ This guide explains how to install and configure docker and cadvisor metrics ass
 
 # A: Enable Docker Engine Metrics (Optional)
 Docker can expose internal engine metrics on port 9323. These metrics are not container-level, but are still useful.
-
+![dockervscadvisor](images/docker_vs_cadvisor.png)
 ### Step 1: Edit Docker Daemon
 
 ```bash
@@ -51,7 +51,7 @@ Open in browser or use curl
 ```bash
 curl http://localhost:8080
 ```
-
+![cAdvisorUI](images/cadvisor_ui.png)
 # C: Configure Prometheus to scrape Docker and cAdvisor metrics
 
 ### Step 1: Add new jobs to prometheus.yml
