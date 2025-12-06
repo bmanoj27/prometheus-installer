@@ -1,0 +1,17 @@
+#Rules have to separated by job, specific job rules go into their own files
+#This file contains example rules for node exporter metrics
+#update prometheus.yml to include this file under 'rule_files' section
+groups:
+  - name: example
+    interval: 30s
+    rules:
+      - record: node_memory_memFree_percent
+        expr: round(100 - (100 * node_memory_MemFree_bytes / node_memory_MemTotal_bytes ), 0.01)
+      - record: node_filesystem_free_percent
+        expr: round(100 * node_filesystem_free_bytes / node_filesystem_size_bytes, 0.01)
+      - record: node_filesystem_free_percent_avg
+        expr: avg by(instance) (node_filesystem_free_percent) #using the second record here,since it is sequential
+      - record: node_network_receive_bytes_rate
+        expr: rate(node_network_receive_bytes_total{job="nodes"}[2m])
+      - record: node_network_receive_bytes_rate_avg
+        expr: avg by(instance) (node_network_receive_bytes_rate)

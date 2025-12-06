@@ -47,16 +47,33 @@ Type=simple
 ExecStart=/usr/local/bin/prometheus \
   --config.file /etc/prometheus/prometheus.yml \
   --storage.tsdb.path /var/lib/prometheus/
+# --web.console.templates=/etc/prometheus/consoles \
+# --web.console.libraries=/etc/prometheus/console_libraries
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
+# Creating sample rules
+mkdir /etc/prometheus/rules
+cat << EOF > /etc/prometheus/rules/first_rule.yml
+#Rules have to separated by job, specific job rules go into their own files
+#This file contains example rules for node exporter metrics
+#update prometheus.yml to include this file under 'rule_files' section
+groups:
+  - name: example
+    interval: 30s
+    rules:
+      - record: node_memory_memFree_percent
+        expr: round(100 - (100 * node_memory_MemFree_bytes / node_memory_MemTotal_bytes ), 0.01)
+      - record: node_filesystem_free_percent
+        expr: round(100 * node_filesystem_free_bytes / node_filesystem_size_bytes, 0.01)
+      - record: node_filesystem_free_percent_avg
+        expr: avg by(instance) (node_filesystem_free_percent) #using the second record here,since it is sequential
+EOF
+
+chown -R prometheus:prometheus /etc/prometheus/rules
+
 systemctl daemon-reload
 systemctl start prometheus
 systemctl enable prometheus 
-
-
-
-
-

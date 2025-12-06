@@ -1,0 +1,7 @@
+{{ template "head" .}}
+{{template "prom_content_head" .}}
+<h1>Memory Details</h1>
+
+active memory: {{template "prom_query_drilldown" (args "node_memory_Active_bytes") }}
+{{template "prom_content_tail" .}}
+{{ template "tail" .}}
