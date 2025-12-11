@@ -15,3 +15,20 @@ groups:
         expr: rate(node_network_receive_bytes_total{job="nodes"}[2m])
       - record: node_network_receive_bytes_rate_avg
         expr: avg by(instance) (node_network_receive_bytes_rate)
+#Alerts can also be configured here
+      - alert: HighMemoryUsage
+        expr: node_memory_memFree_percent < 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory Usage on {{ $labels.instance }}"
+          description: "Memory free is below 20% (current value: {{ $value }}%)"
+      - alert: LowFilesystemSpace
+        expr: node_filesystem_free_percent_avg < 15
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low Filesystem Space on {{ $labels.instance }}"
+          description: "Filesystem free space is below 15% (current value: {{ $value }}%)"

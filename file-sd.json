@@ -1,0 +1,16 @@
+[
+    {
+        "targets": ["node01:9100", "node02:9100"]
+        "labels": {
+            "env": "production",
+            "job": "node"
+        }
+    },
+    {
+        "targets": ["db01:9100", "db02:9100"]
+        "labels": {
+            "env": "production",
+            "job": "database"
+        }
+    }
+]

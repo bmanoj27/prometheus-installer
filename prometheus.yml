@@ -9,12 +9,12 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          # - alertmanager:9093
+           - localhost:9093
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
   - "/etc/prometheus/rules/first_rule.yml"
-  # - "second_rules.yml"
+  - "/etc/prometheus/rules/alert_test_rule.yml"
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
@@ -44,6 +44,36 @@ scrape_configs:
       - targets: ["localhost:9100"]
         labels:
           app: "node_scrape"
+#using a file to store the endpoints
+  - job_name: "file-example"
+    file_sd_configs:
+      - files:
+          - 'file-sa.json' # - '*.json' will also work, place the json in the same dir as this file, or provide full path
+    relabel_configs:
+      - source_labels: [team]
+        regex: (.*)
+        action: replace
+        target_label: organization
+        replacement: org-$1     #relabeling all team:* with organization:org-*. Example: team:alpha --> organization:org-alpha
+
+#END
+#AWS EC2 Instance Scrape
+  - job_name: "aws_ec2"
+    ec2_sd_configs:
+      - region: us-east-1
+        access_key: YOUR_AWS_ACCESS_KEY #KEY WITH JUST ONE PERMISSION: AmzonEC2ReadOnlyAccess
+        secret_key: YOUR_AWS_SECRET_KEY #This config will scrape all ec2 instances
+        port: 9100
+    relabel_configs:
+      - source_labels: [__meta_ec2_tag_Name]
+        regex: webserver-.* #so, only instances with tag Name:webserver-* will be scraped
+        action: keep
+      - source_labels: [__meta_ec2_tag_env]
+        regex: uat
+        action: drop  #with uat will be dropped.
+      - regex: instance|job
+        action: labelkeep  #other than instance or job, all other labels will be dropped.
+#Docker and cAdvisor Scrape
   - job_name: "docker"
     static_configs:
       - targets: ["localhost:9323"]

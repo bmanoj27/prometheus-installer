@@ -1,0 +1,26 @@
+groups:
+  - name: my-alerts
+    interval: 15s
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU Usage on {{ $labels.instance }}"
+      - alert: HostOutOfMemory
+        expr: node_memory_MemAvailable_bytes{job="nodes"} / node_memory_MemTotal_bytes{job="nodes"} * 100 < 10
+        labels:
+          severity: warning
+          team: internal-infra
+        annotations:
+          message: "node {{.Labels.instance}} is seeing high memory usage, currently available memory: {{.Value}}%"

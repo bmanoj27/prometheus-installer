@@ -77,3 +77,47 @@ chown -R prometheus:prometheus /etc/prometheus/rules
 systemctl daemon-reload
 systemctl start prometheus
 systemctl enable prometheus 
+
+#Installing Alert Manager
+cd /tmp
+wget https://github.com/prometheus/alertmanager/releases/download/v0.29.0/alertmanager-0.29.0.linux-amd64.tar.gz
+# Note: You might encounter an SSL certificate issue:
+tar xzf alertmanager-0.29.0.linux-amd64.tar.gz
+cd alertmanager-0.29.0.linux-amd64
+
+sudo useradd --no-create-home --shell /bin/false alertmanager
+
+sudo mkdir /etc/alertmanager
+sudo mv alertmanager.yml /etc/alertmanager
+sudo chown -R alertmanager:alertmanager /etc/alertmanager
+
+sudo mkdir /var/lib/alertmanager
+sudo chown -R alertmanager:alertmanager /var/lib/alertmanager
+
+sudo cp alertmanager /usr/local/bin
+sudo chown alertmanager:alertmanager /usr/local/bin/alertmanager
+sudo chown alertmanager:alertmanager /usr/local/bin/amtool
+
+cat << EOF > /etc/systemd/system/alertmanager.service
+[Unit]
+Description=Alert Manager
+Wants=network-online.target
+After=network-online.target
+
+
+[Service]
+Type=simple
+User=alertmanager
+Group=alertmanager
+ExecStart=/usr/local/bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/var/lib/alertmanager
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl start alertmanager
+sudo systemctl enable alertmanager
+
+#Update the Prometheus configuration located at /etc/prometheus/prometheus.yml to point to the new AlertManager endpoint at localhost:9093
